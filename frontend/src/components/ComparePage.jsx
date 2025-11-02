@@ -42,6 +42,7 @@ function ComparePage() {
   const chartData = results ? results.comparisons.map(comp => ({
     name: comp.algorithm,
     time: Number(comp.execution_time.toFixed(3)),
+    comparisons: comp.total_comparisons || 0,
     matches: comp.matched_documents
   })) : [];
 
@@ -150,7 +151,7 @@ function ComparePage() {
             </div>
           </motion.div>
 
-          {/* Chart Card */}
+          {/* Execution Time Chart Card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -158,7 +159,7 @@ function ComparePage() {
             className="glass rounded-3xl p-8 md:p-10 shadow-xl"
           >
             <h3 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
-              <span className="mr-3 text-3xl">📊</span>
+              <span className="mr-3 text-3xl"></span>
               Execution Time Comparison
             </h3>
             <div className="h-96">
@@ -200,6 +201,60 @@ function ComparePage() {
             </div>
           </motion.div>
 
+          {/* Character Comparisons Chart Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+            className="glass rounded-3xl p-8 md:p-10 shadow-xl"
+          >
+            <h3 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
+              <span className="mr-3 text-3xl"></span>
+              Character Comparisons Comparison
+            </h3>
+            <div className="h-96">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+                  <XAxis 
+                    dataKey="name" 
+                    tick={{ fill: '#6b7280', fontSize: 13, fontWeight: 500 }}
+                    axisLine={{ stroke: '#d1d5db' }}
+                  />
+                  <YAxis 
+                    label={{ value: 'Comparisons', angle: -90, position: 'insideLeft', fill: '#6b7280', fontSize: 12 }}
+                    tick={{ fill: '#6b7280', fontSize: 11 }}
+                    axisLine={{ stroke: '#d1d5db' }}
+                    tickFormatter={(value) => {
+                      if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+                      if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
+                      return value.toString();
+                    }}
+                  />
+                  <Tooltip 
+                    cursor={{ fill: 'rgba(139, 92, 246, 0.1)' }}
+                    contentStyle={{ 
+                      backgroundColor: 'white',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '12px',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      padding: '12px'
+                    }}
+                    formatter={(value, name) => {
+                      if (name === 'comparisons') return [value.toLocaleString(), 'Character Comparisons'];
+                      return value;
+                    }}
+                  />
+                  <Bar dataKey="comparisons" name="Character Comparisons" radius={[12, 12, 0, 0]}>
+                    {chartData.map((entry, index) => (
+                      <Cell key={`cell-comparisons-${index}`} fill={colors[entry.name]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </motion.div>
+
           {/* Comparison Table */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -214,6 +269,7 @@ function ComparePage() {
                   <th className="py-4 px-4 text-left font-semibold text-gray-700">Algorithm</th>
                   <th className="py-4 px-4 text-right font-semibold text-gray-700">Time (ms)</th>
                   <th className="py-4 px-4 text-right font-semibold text-gray-700">Comparisons</th>
+                  <th className="py-4 px-4 text-right font-semibold text-gray-700">Collisions</th>
                   <th className="py-4 px-4 text-right font-semibold text-gray-700">Matches</th>
                   <th className="py-4 px-4 text-right font-semibold text-gray-700">Small CVs</th>
                   <th className="py-4 px-4 text-right font-semibold text-gray-700">Medium CVs</th>
@@ -237,6 +293,11 @@ function ComparePage() {
                     </td>
                     <td className="text-right py-4 px-4 text-gray-700 font-medium">
                       {comp.total_comparisons ? comp.total_comparisons.toLocaleString() : 'N/A'}
+                    </td>
+                    <td className="text-right py-4 px-4 text-gray-700 font-medium">
+                      {comp.algorithm === 'Rabin-Karp' 
+                        ? (comp.total_collisions || 0).toLocaleString() 
+                        : '-'}
                     </td>
                     <td className="text-right py-4 px-4 text-gray-700 font-medium">{comp.matched_documents}</td>
                     <td className="text-right py-4 px-4 text-gray-600">

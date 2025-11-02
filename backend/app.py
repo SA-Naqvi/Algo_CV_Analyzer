@@ -48,11 +48,11 @@ def remove_stop_words(text):
     words = [w.strip() for w in text_clean.split() if w.strip() and w not in STOP_WORDS]
     return ' '.join(words)
 
-def calculate_match_score(text, keywords, algorithm='bruteForce', track_comparisons=False):
+def calculate_match_score(text, keywords, algorithm='bruteForce', track_comparisons=False, track_collisions=False):
     """Calculate match score using specified algorithm - searches each keyword separately
-    Returns: (score, all_matches, matched_keywords, missing_keywords, total_comparisons, file_size_category)"""
+    Returns: (score, all_matches, matched_keywords, missing_keywords, total_comparisons, total_collisions, file_size_category)"""
     if not keywords or not text:
-        return 0, [], [], [], 0, 'unknown'
+        return 0, [], [], [], 0, 0, 'unknown'
     
     text_lower = text.lower()
     
@@ -68,11 +68,12 @@ def calculate_match_score(text, keywords, algorithm='bruteForce', track_comparis
     # Split keywords into individual words
     keyword_list = [kw.strip() for kw in keywords.split() if kw.strip()]
     if not keyword_list:
-        return 0, [], [], keyword_list, 0, size_category
+        return 0, [], [], keyword_list, 0, 0, size_category
     
     all_matches = []
     matched_keywords = []
     total_comparisons = 0
+    total_collisions = 0
     total_matches_count = 0
     
     # Search for each keyword separately
@@ -82,15 +83,19 @@ def calculate_match_score(text, keywords, algorithm='bruteForce', track_comparis
         # Choose algorithm
         if algorithm == 'bruteForce':
             matches, comparisons = bruteForce(text_lower, keyword_lower)
+            collisions = 0
         elif algorithm == 'rabinKarp':
-            matches, comparisons = rabinKarp(text_lower, keyword_lower)
+            matches, comparisons, collisions = rabinKarp(text_lower, keyword_lower)
         elif algorithm == 'kmp':
             matches, comparisons = kmp_matcher(text_lower, keyword_lower)
+            collisions = 0
         else:
-            matches, comparisons = [], 0
+            matches, comparisons, collisions = [], 0, 0
         
         if track_comparisons:
             total_comparisons += comparisons
+        if track_collisions:
+            total_collisions += collisions
         
         if matches:  # If keyword found
             matched_keywords.append(keyword)
@@ -105,7 +110,7 @@ def calculate_match_score(text, keywords, algorithm='bruteForce', track_comparis
     score = (len(matched_keywords) / len(keyword_list)) * 100 if keyword_list else 0
     score = round(score, 2)
     
-    return score, all_matches, matched_keywords, missing_keywords, total_comparisons, size_category
+    return score, all_matches, matched_keywords, missing_keywords, total_comparisons, total_collisions, size_category
 
 @app.route('/search', methods=['POST'])
 def search():
@@ -126,8 +131,8 @@ def search():
         # Search all documents
         results = []
         for filename, content in dataset.items():
-            score, all_matches, matched_keywords, missing_keywords, comparisons, size_category = calculate_match_score(
-                content, cleaned_keywords, algorithm, track_comparisons=True
+            score, all_matches, matched_keywords, missing_keywords, comparisons, collisions, size_category = calculate_match_score(
+                content, cleaned_keywords, algorithm, track_comparisons=True, track_collisions=(algorithm == 'rabinKarp')
             )
             if score > 0:  # Only include documents with matches
                 results.append({
@@ -138,6 +143,7 @@ def search():
                     'missing_keywords': missing_keywords,
                     'total_keywords': len(cleaned_keywords.split()),
                     'comparisons': comparisons,
+                    'collisions': collisions if algorithm == 'rabinKarp' else 0,
                     'size_category': size_category
                 })
         
@@ -182,6 +188,7 @@ def compare():
         for algo_name, algo_key in algorithms.items():
             start_time = time.perf_counter()
             total_comparisons = 0
+            total_collisions = 0
             small_cv_count = 0
             medium_cv_count = 0
             large_cv_count = 0
@@ -189,10 +196,12 @@ def compare():
             # Run algorithm on all documents
             results = []
             for filename, content in dataset.items():
-                score, all_matches, matched_keywords, missing_keywords, comparisons, size_category = calculate_match_score(
-                    content, cleaned_keywords, algo_key, track_comparisons=True
+                score, all_matches, matched_keywords, missing_keywords, comparisons, collisions, size_category = calculate_match_score(
+                    content, cleaned_keywords, algo_key, track_comparisons=True, track_collisions=(algo_key == 'rabinKarp')
                 )
                 total_comparisons += comparisons
+                if algo_key == 'rabinKarp':
+                    total_collisions += collisions
                 
                 if score > 0:
                     if size_category == 'small':
@@ -221,6 +230,7 @@ def compare():
                 'algorithm': algo_name,
                 'execution_time': execution_time,
                 'total_comparisons': total_comparisons,
+                'total_collisions': total_collisions if algo_key == 'rabinKarp' else 0,
                 'matched_documents': len(results),
                 'small_cv_count': small_cv_count,
                 'medium_cv_count': medium_cv_count,

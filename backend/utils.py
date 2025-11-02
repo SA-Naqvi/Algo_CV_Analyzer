@@ -66,15 +66,14 @@ def bruteForce(string, pattern):
 
 def rabinKarp(string, pattern):
     """Optimized Rabin-Karp with faster rolling hash
-    Returns: (matches, comparison_count)"""
+    Returns: (matches, comparison_count, collision_count)"""
     n = len(string)
     m = len(pattern)
     if m > n or m == 0:
-        return [], 0
+        return [], 0, 0
     
     base = 256
-    mod = 2**31 - 1
-    
+    mod = 7919
     string = string.lower()
     pattern = pattern.lower()
     
@@ -92,17 +91,24 @@ def rabinKarp(string, pattern):
     
     idx = []
     comparisons = 0
+    collisions = 0
     
     for i in range(n - m + 1):
         comparisons += 1
         if hashPattern == hashString:
             # Verify match - count each character comparison
+            is_match = True
             for k in range(m):
-                
+                comparisons += 1
                 if string[i + k] != pattern[k]:
+                    is_match = False
                     break
-            else:
+            
+            if is_match:
                 idx.append(i)
+            else:
+                # Hash matched but strings don't - this is a collision
+                collisions += 1
         
         # Rolling hash for next window
         if i < n - m:
@@ -110,7 +116,7 @@ def rabinKarp(string, pattern):
             hashString = (hashString * base + ord(string[i + m])) % mod
             hashString = (hashString + mod) % mod
     
-    return idx, comparisons
+    return idx, comparisons, collisions
 
 
 def prefix(p):
