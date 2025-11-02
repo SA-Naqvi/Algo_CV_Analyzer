@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { searchDocuments } from '../utils/api';
 import ResultCard from './ResultCard';
 import LoadingSpinner from './LoadingSpinner';
+import GradientBackground from './GradientBackground';
 
 function SearchPage() {
   const [keywords, setKeywords] = useState('');
@@ -40,25 +41,13 @@ function SearchPage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <div className="relative pt-32 pb-24 px-4 overflow-hidden">
-        {/* Background Image Layer */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: 'url(/hero-bg.jpg)' // Replace 'hero-bg.jpg' with your image filename
-          }}
-        ></div>
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-100/50 via-purple-50/30 to-pink-50/40"></div>
-        {/* Pattern Overlay */}
-        <div 
-          className="absolute inset-0 opacity-30"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-          }}
-        ></div>
+      <div className="relative pt-32 pb-24 px-4 overflow-hidden bg-white">
+        {/* Animated Gradient Background */}
+        <GradientBackground />
+        {/* Light overlay for better text readability */}
+        <div className="absolute inset-0 bg-white/40 z-10"></div>
         
-        <div className="relative max-w-4xl mx-auto text-center">
+        <div className="relative max-w-4xl mx-auto text-center z-20">
           <h1 className="text-6xl md:text-7xl font-light tracking-tight leading-tight mb-6 text-gray-900 animate-fade-in">
             Analyze CVs intelligently
             <br />
@@ -67,7 +56,7 @@ function SearchPage() {
             </span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 font-light mb-12 max-w-2xl mx-auto animate-slide-up">
-            Compare hundreds of resumes with AI-powered algorithms.
+            Compare hundreds of resumes with advanced algorithms.
           </p>
 
           {/* Search Form - Glass Card */}
