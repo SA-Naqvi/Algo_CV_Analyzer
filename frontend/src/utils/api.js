@@ -1,14 +1,30 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://cv-backend-04vy.onrender.com';
-
+//const API_BASE_URL = 'https://cv-backend-04vy.onrender.com';
+const API_BASE_URL = 'http://localhost:5000';
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000, // 10 seconds
 });
+
+// Helper function to get detailed error message
+const getErrorMessage = (error) => {
+  if (error.response) {
+    // Server responded with error status
+    return error.response.data.error || `Server error: ${error.response.status}`;
+  } else if (error.request) {
+    // Request was made but no response received
+    if (error.code === 'ECONNABORTED') {
+      return 'Request timeout: Server is taking too long to respond';
+    }
+    return `Unable to connect to server at ${API_BASE_URL}. Make sure the backend server is running.`;
+  } else {
+    // Something else happened
+    return error.message || 'Network error: Unable to connect to server';
+  }
+};
 
 export const searchDocuments = async (keywords, algorithm = 'bruteForce') => {
   try {
@@ -18,10 +34,7 @@ export const searchDocuments = async (keywords, algorithm = 'bruteForce') => {
     });
     return response.data;
   } catch (error) {
-    if (error.response) {
-      throw new Error(error.response.data.error || 'Search failed');
-    }
-    throw new Error('Network error: Unable to connect to server');
+    throw new Error(getErrorMessage(error));
   }
 };
 
@@ -32,10 +45,7 @@ export const compareAlgorithms = async (keywords) => {
     });
     return response.data;
   } catch (error) {
-    if (error.response) {
-      throw new Error(error.response.data.error || 'Comparison failed');
-    }
-    throw new Error('Network error: Unable to connect to server');
+    throw new Error(getErrorMessage(error));
   }
 };
 
@@ -44,7 +54,7 @@ export const checkHealth = async () => {
     const response = await api.get('/health');
     return response.data;
   } catch (error) {
-    throw new Error('Server health check failed');
+    throw new Error(getErrorMessage(error) || 'Server health check failed');
   }
 };
 
