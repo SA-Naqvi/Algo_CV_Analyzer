@@ -5,6 +5,9 @@
 # Documents folder (contains CVs/PDFs)
 backend/documents/
 
+# Job descriptions folder
+backend/job_descriptions/
+
 # Pre-built dataset (may be large)
 backend/dataset.pkl
 
