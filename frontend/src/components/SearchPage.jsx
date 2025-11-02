@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { searchDocuments } from '../utils/api';
 import ResultCard from './ResultCard';
+import LoadingSpinner from './LoadingSpinner';
 
 function SearchPage() {
   const [keywords, setKeywords] = useState('');
@@ -30,85 +31,174 @@ function SearchPage() {
     }
   };
 
+  const algorithmNames = {
+    bruteForce: 'Brute Force',
+    rabinKarp: 'Rabin-Karp',
+    kmp: 'KMP (Knuth-Morris-Pratt)'
+  };
+
   return (
-    <div className="search-page">
-      <div className="search-container">
-        <h2 className="page-title">🔍 Search Documents</h2>
-        <p className="page-subtitle">
-          Enter keywords to search through documents using string matching algorithms
-        </p>
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <div className="relative pt-32 pb-24 px-4 overflow-hidden">
+        {/* Background Image Layer */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: 'url(/hero-bg.jpg)' // Replace 'hero-bg.jpg' with your image filename
+          }}
+        ></div>
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-100/50 via-purple-50/30 to-pink-50/40"></div>
+        {/* Pattern Overlay */}
+        <div 
+          className="absolute inset-0 opacity-30"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+          }}
+        ></div>
+        
+        <div className="relative max-w-4xl mx-auto text-center">
+          <h1 className="text-6xl md:text-7xl font-light tracking-tight leading-tight mb-6 text-gray-900 animate-fade-in">
+            Analyze CVs intelligently
+            <br />
+            <span className="font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              with pattern matching.
+            </span>
+          </h1>
+          <p className="text-xl md:text-2xl text-gray-600 font-light mb-12 max-w-2xl mx-auto animate-slide-up">
+            Compare hundreds of resumes with AI-powered algorithms.
+          </p>
 
-        <form onSubmit={handleSearch} className="search-form">
-          <div className="form-group">
-            <label htmlFor="keywords">Keywords</label>
-            <input
-              type="text"
-              id="keywords"
-              className="input-field"
-              placeholder="e.g., machine learning, artificial intelligence"
-              value={keywords}
-              onChange={(e) => setKeywords(e.target.value)}
-            />
-          </div>
+          {/* Search Form - Glass Card */}
+          <form onSubmit={handleSearch} className="glass rounded-3xl p-8 md:p-10 max-w-2xl mx-auto shadow-2xl animate-slide-up">
+            <div className="space-y-6">
+              <div>
+                <label htmlFor="keywords" className="block text-sm font-semibold text-gray-700 mb-3 text-left">
+                  Job Keywords
+                </label>
+                <input
+                  type="text"
+                  id="keywords"
+                  className="w-full px-6 py-4 rounded-2xl border-2 border-gray-200 bg-white/80 backdrop-blur-sm text-gray-900 placeholder-gray-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 outline-none transition-all text-lg shadow-sm"
+                  placeholder="e.g., Python, Machine Learning, React, Node.js"
+                  value={keywords}
+                  onChange={(e) => setKeywords(e.target.value)}
+                />
+              </div>
 
-          <div className="form-group">
-            <label htmlFor="algorithm">Algorithm</label>
-            <select
-              id="algorithm"
-              className="select-field"
-              value={algorithm}
-              onChange={(e) => setAlgorithm(e.target.value)}
-            >
-              <option value="bruteForce">Brute Force</option>
-              <option value="rabinKarp">Rabin-Karp</option>
-              <option value="kmp">KMP (Knuth-Morris-Pratt)</option>
-            </select>
-          </div>
+              <div>
+                <label htmlFor="algorithm" className="block text-sm font-semibold text-gray-700 mb-3 text-left">
+                  Algorithm
+                </label>
+                <select
+                  id="algorithm"
+                  className="w-full px-6 py-4 rounded-2xl border-2 border-gray-200 bg-white/80 backdrop-blur-sm text-gray-900 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 outline-none transition-all text-lg shadow-sm"
+                  value={algorithm}
+                  onChange={(e) => setAlgorithm(e.target.value)}
+                >
+                  <option value="bruteForce">Brute Force</option>
+                  <option value="rabinKarp">Rabin-Karp</option>
+                  <option value="kmp">KMP (Knuth-Morris-Pratt)</option>
+                </select>
+              </div>
 
-          <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? 'Searching...' : 'Search'}
-          </button>
-        </form>
-
-        {error && (
-          <div className="error-message">
-            ⚠️ {error}
-          </div>
-        )}
-
-        {results && (
-          <div className="results-section">
-            <div className="results-header">
-              <h3>Search Results</h3>
-              <div className="results-stats">
-                <span className="stat">
-                  <strong>Query:</strong> {results.query}
-                </span>
-                {results.cleaned_query !== results.query && (
-                  <span className="stat">
-                    <strong>Cleaned:</strong> {results.cleaned_query}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-4 px-8 rounded-full text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Analyzing...
                   </span>
+                ) : (
+                  'Analyze'
                 )}
-                <span className="stat">
-                  <strong>Matched:</strong> {results.matched_documents} / {results.total_documents} documents
-                </span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {/* Results Section */}
+      {error && (
+        <div className="max-w-6xl mx-auto px-4 mb-8 animate-slide-up">
+          <div className="glass rounded-2xl p-6 border-red-200 bg-red-50/50">
+            <div className="flex items-center">
+              <svg className="w-6 h-6 text-red-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+              <p className="text-red-700 font-medium">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {loading && (
+        <div className="max-w-6xl mx-auto px-4">
+          <LoadingSpinner text="Analyzing CVs..." />
+        </div>
+      )}
+
+      {results && !loading && (
+        <div className="max-w-7xl mx-auto px-4 pb-20 animate-fade-in">
+          {/* Results Header */}
+          <div className="glass rounded-3xl p-8 mb-8 shadow-xl">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+              <div>
+                <h2 className="text-3xl font-semibold text-gray-900 mb-2">Search Results</h2>
+                <p className="text-lg text-gray-600">
+                  Found <span className="font-semibold text-blue-600">{results.matched_documents}</span> out of{' '}
+                  <span className="font-semibold">{results.total_documents}</span> CVs
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <div className="bg-blue-50 rounded-xl px-5 py-3 border border-blue-100">
+                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Query</p>
+                  <p className="font-semibold text-gray-900">{results.query}</p>
+                </div>
+                {results.cleaned_query !== results.query && (
+                  <div className="bg-purple-50 rounded-xl px-5 py-3 border border-purple-100">
+                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Cleaned</p>
+                    <p className="font-semibold text-gray-900">{results.cleaned_query}</p>
+                  </div>
+                )}
+                <div className="bg-green-50 rounded-xl px-5 py-3 border border-green-100">
+                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Algorithm</p>
+                  <p className="font-semibold text-gray-900">{algorithmNames[algorithm]}</p>
+                </div>
               </div>
             </div>
-
-            <div className="results-grid">
-              {results.results.length > 0 ? (
-                results.results.map((result, index) => (
-                  <ResultCard key={index} result={result} rank={index + 1} />
-                ))
-              ) : (
-                <div className="no-results">
-                  <p>No documents found matching your search.</p>
-                </div>
-              )}
-            </div>
           </div>
-        )}
-      </div>
+
+          {/* Results Grid */}
+          {results.results.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {results.results.map((result, index) => (
+                <ResultCard
+                  key={index}
+                  result={result}
+                  rank={index + 1}
+                  keywords={results.cleaned_query}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="glass rounded-3xl p-16 text-center shadow-xl">
+              <svg className="mx-auto h-20 w-20 text-gray-400 mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <h3 className="text-2xl font-semibold text-gray-900 mb-3">No matches found</h3>
+              <p className="text-gray-600">Try adjusting your keywords or using a different algorithm</p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

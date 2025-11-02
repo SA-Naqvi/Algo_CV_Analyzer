@@ -39,49 +39,66 @@ def extract_pdf_text(path):
     return "\n".join(text)
 
 def bruteForce(string, pattern):
-    """Brute force string matching algorithm"""
+    """Brute force string matching algorithm - O(n*m) worst case"""
     n = len(string)
     m = len(pattern)
     if m > n:
         return []
+    if m == 0:
+        return []
     string = string.lower()
     pattern = pattern.lower()
     idx = []
+    # Standard brute force: check every position
     for i in range(n - m + 1):
-        if string[i] == pattern[0]:
-            found = True
-            for j in range(m):
-                if pattern[j] != string[i + j]:
-                    found = False
-                    break
-            if found:
-                idx.append(i)
+        j = 0
+        while j < m and string[i + j] == pattern[j]:
+            j += 1
+        if j == m:
+            idx.append(i)
     return idx
 
 def rabinKarp(string, pattern):
-    """Rabin-Karp string matching algorithm"""
+    """Rabin-Karp string matching algorithm - O(n+m) average, O(n*m) worst"""
     n = len(string)
     m = len(pattern)
-    base = 128
-    mod = 509
     if m > n:
         return []
+    if m == 0:
+        return []
+    
+    base = 256
+    mod = 1009  # Medium prime - balance between speed and collision reduction
+    
     string = string.lower()
     pattern = pattern.lower()
-    h = pow(base, m-1, mod)
-    hashString = 0
+    
+    # Precompute h = base^(m-1) mod mod efficiently
+    h = pow(base, m - 1, mod)
+    
+    # Calculate hash of pattern and first window of text
     hashPattern = 0
+    hashString = 0
     for i in range(m):
-        hashPattern = (base * hashPattern + ord(pattern[i])) % mod
-        hashString = (base * hashString + ord(string[i])) % mod
+        hashPattern = (hashPattern * base + ord(pattern[i])) % mod
+        hashString = (hashString * base + ord(string[i])) % mod
+    
     idx = []
+    
+    # Slide the pattern over text
     for i in range(n - m + 1):
-        if hashPattern == hashString and string[i:i+m] == pattern:
-            idx.append(i)
+        # Check hash values match, then verify (avoid hash collisions)
+        if hashPattern == hashString:
+            # Check characters one by one to avoid false positives
+            if string[i:i+m] == pattern:
+                idx.append(i)
+        
+        # Calculate hash for next window
         if i < n - m:
             hashString = (base * (hashString - ord(string[i]) * h) + ord(string[i + m])) % mod
             if hashString < 0:
                 hashString += mod
+    
     return idx
 
 def prefix(p):
@@ -101,9 +118,17 @@ def kmp_matcher(S, P):
     """KMP string matching algorithm"""
     n = len(S)
     m = len(P)
+    if m == 0:
+        return []
+    if m > n:
+        return []
+    
     Pi = prefix(P)
     q = 0
     matches = []
+    S = S.lower()
+    P = P.lower()
+    
     for i in range(n):
         while q > 0 and P[q] != S[i]:
             q = Pi[q - 1]
@@ -111,7 +136,7 @@ def kmp_matcher(S, P):
             q += 1
         if q == m:
             matches.append(i - m + 1)
-            q = Pi[q - 1]
+            q = Pi[q - 1]  # Continue searching for next match
     return matches
 
 def build_dataset(folder_path, output_file='dataset.pkl'):
