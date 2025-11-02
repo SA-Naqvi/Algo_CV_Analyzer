@@ -2,7 +2,7 @@
   "name": "document-search-frontend",
   "version": "1.0.0",
   "private": true,
-  "homepage": "https://github.com/SA-Naqvi/Algo_CV_Analyzer/",
+  "homepage": "https://sa-naqvi.github.io/Algo_CV_Analyzer/",
   "dependencies": {
     "axios": "^1.6.0",
     "framer-motion": "^12.23.24",
@@ -17,7 +17,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d build --repo git@github.com:SA-Naqvi/Algo_CV_Analyzer.git --dotfiles"
   },
   "eslintConfig": {
     "extends": [
@@ -36,7 +36,7 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:5000",
+  "proxy": "https://cv-backend-04vy.onrender.com",
   "devDependencies": {
     "autoprefixer": "^10.4.21",
     "gh-pages": "^6.3.0",

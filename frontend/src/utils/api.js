@@ -1,12 +1,13 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'https://cv-backend-04vy.onrender.com';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 10000, // 10 seconds
 });
 
 export const searchDocuments = async (keywords, algorithm = 'bruteForce') => {
