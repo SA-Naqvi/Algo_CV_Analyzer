@@ -7,13 +7,13 @@ function Navbar({ currentPage, setCurrentPage }) {
         <div className="flex justify-between items-center h-20">
           {/* Left Side - Logo */}
           <div className="flex items-center space-x-3">
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
               CV Analyzer
             </span>
           </div>
 
           {/* Right Side - Navigation Links */}
-          <div className="hidden md:flex items-center space-x-2">
+          <div className="hidden md:flex items-center space-x-2" style={{ fontFamily: "'Inter', sans-serif" }}>
             <button
               onClick={() => setCurrentPage('search')}
               className={`px-5 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 ${
@@ -50,7 +50,7 @@ function Navbar({ currentPage, setCurrentPage }) {
 
       {/* Mobile menu */}
       <div className="md:hidden border-t border-white/20 bg-white/80 backdrop-blur-md">
-        <div className="px-4 py-3 space-y-2">
+        <div className="px-4 py-3 space-y-2" style={{ fontFamily: "'Inter', sans-serif" }}>
           <button
             onClick={() => setCurrentPage('search')}
             className={`w-full text-left px-4 py-2.5 rounded-lg font-medium transition-all ${

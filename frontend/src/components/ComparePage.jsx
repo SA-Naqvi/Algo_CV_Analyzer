@@ -213,8 +213,11 @@ function ComparePage() {
                 <tr className="border-b border-gray-200">
                   <th className="py-4 px-4 text-left font-semibold text-gray-700">Algorithm</th>
                   <th className="py-4 px-4 text-right font-semibold text-gray-700">Time (ms)</th>
+                  <th className="py-4 px-4 text-right font-semibold text-gray-700">Comparisons</th>
                   <th className="py-4 px-4 text-right font-semibold text-gray-700">Matches</th>
-                  <th className="py-4 px-4 text-right font-semibold text-gray-700">Avg/CV (ms)</th>
+                  <th className="py-4 px-4 text-right font-semibold text-gray-700">Small CVs</th>
+                  <th className="py-4 px-4 text-right font-semibold text-gray-700">Medium CVs</th>
+                  <th className="py-4 px-4 text-right font-semibold text-gray-700">Large CVs</th>
                 </tr>
               </thead>
               <tbody>
@@ -232,12 +235,18 @@ function ComparePage() {
                     <td className="text-right py-4 px-4 font-semibold text-lg" style={{ color: colors[comp.algorithm] }}>
                       {Number(comp.execution_time).toFixed(3)}
                     </td>
+                    <td className="text-right py-4 px-4 text-gray-700 font-medium">
+                      {comp.total_comparisons ? comp.total_comparisons.toLocaleString() : 'N/A'}
+                    </td>
                     <td className="text-right py-4 px-4 text-gray-700 font-medium">{comp.matched_documents}</td>
                     <td className="text-right py-4 px-4 text-gray-600">
-                      {results.total_documents > 0 
-                        ? (Number(comp.execution_time) / results.total_documents).toFixed(4)
-                        : '0.0000'
-                      } ms
+                      {comp.small_cv_count || 0}
+                    </td>
+                    <td className="text-right py-4 px-4 text-gray-600">
+                      {comp.medium_cv_count || 0}
+                    </td>
+                    <td className="text-right py-4 px-4 text-gray-600">
+                      {comp.large_cv_count || 0}
                     </td>
                   </tr>
                 ))}

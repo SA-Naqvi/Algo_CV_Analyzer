@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { searchDocuments } from '../utils/api';
 import ResultCard from './ResultCard';
 import LoadingSpinner from './LoadingSpinner';
@@ -10,6 +10,18 @@ function SearchPage() {
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [jobDescriptions, setJobDescriptions] = useState({});
+  const [selectedJob, setSelectedJob] = useState('');
+
+  // Fetch job descriptions on mount
+  useEffect(() => {
+    fetch('http://localhost:5000/job_descriptions')
+      .then(res => res.json())
+      .then(data => {
+        setJobDescriptions(data.job_descriptions || {});
+      })
+      .catch(err => console.error('Error loading job descriptions:', err));
+  }, []);
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -62,6 +74,34 @@ function SearchPage() {
           {/* Search Form - Glass Card */}
           <form onSubmit={handleSearch} className="glass rounded-3xl p-8 md:p-10 max-w-2xl mx-auto shadow-2xl animate-slide-up">
             <div className="space-y-6">
+              {/* Job Description Selector */}
+              {Object.keys(jobDescriptions).length > 0 && (
+                <div>
+                  <label htmlFor="jobDescription" className="block text-sm font-semibold text-gray-700 mb-3 text-left">
+                    Predefined Job Description (Optional)
+                  </label>
+                  <select
+                    id="jobDescription"
+                    className="w-full px-6 py-4 rounded-2xl border-2 border-gray-200 bg-white/80 backdrop-blur-sm text-gray-900 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 outline-none transition-all text-lg shadow-sm mb-2"
+                    value={selectedJob}
+                    onChange={(e) => {
+                      setSelectedJob(e.target.value);
+                      if (e.target.value) {
+                        const jobKeywords = jobDescriptions[e.target.value].join(' ');
+                        setKeywords(jobKeywords);
+                      }
+                    }}
+                  >
+                    <option value="">-- Select a job description --</option>
+                    {Object.keys(jobDescriptions).map((jobName) => (
+                      <option key={jobName} value={jobName}>
+                        {jobName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               <div>
                 <label htmlFor="keywords" className="block text-sm font-semibold text-gray-700 mb-3 text-left">
                   Job Keywords
@@ -72,7 +112,10 @@ function SearchPage() {
                   className="w-full px-6 py-4 rounded-2xl border-2 border-gray-200 bg-white/80 backdrop-blur-sm text-gray-900 placeholder-gray-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 outline-none transition-all text-lg shadow-sm"
                   placeholder="e.g., Python, Machine Learning, React, Node.js"
                   value={keywords}
-                  onChange={(e) => setKeywords(e.target.value)}
+                  onChange={(e) => {
+                    setKeywords(e.target.value);
+                    if (selectedJob) setSelectedJob(''); // Clear selection if manually editing
+                  }}
                 />
               </div>
 

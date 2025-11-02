@@ -39,44 +39,51 @@ def extract_pdf_text(path):
     return "\n".join(text)
 
 def bruteForce(string, pattern):
-    """Brute force string matching algorithm - O(n*m) worst case"""
+    """Brute force string matching algorithm - O(n*m) worst case
+    Returns: (matches, comparison_count)"""
     n = len(string)
     m = len(pattern)
-    if m > n:
-        return []
-    if m == 0:
-        return []
+    if m > n or m == 0:
+        return [], 0
+    
     string = string.lower()
     pattern = pattern.lower()
     idx = []
-    # Standard brute force: check every position
+    comparisons = 0
+    
     for i in range(n - m + 1):
         j = 0
-        while j < m and string[i + j] == pattern[j]:
+        while j < m:
+            comparisons += 1  # Count every comparison
+            if string[i + j] != pattern[j]:
+                break
             j += 1
         if j == m:
             idx.append(i)
-    return idx
+    
+    return idx, comparisons
+
 
 def rabinKarp(string, pattern):
-    """Rabin-Karp string matching algorithm - O(n+m) average, O(n*m) worst"""
+    """Optimized Rabin-Karp with faster rolling hash
+    Returns: (matches, comparison_count)"""
     n = len(string)
     m = len(pattern)
-    if m > n:
-        return []
-    if m == 0:
-        return []
+    if m > n or m == 0:
+        return [], 0
     
     base = 256
-    mod = 1009  # Medium prime - balance between speed and collision reduction
+    mod = 2**31 - 1
     
     string = string.lower()
     pattern = pattern.lower()
     
-    # Precompute h = base^(m-1) mod mod efficiently
-    h = pow(base, m - 1, mod)
+    # Precompute base^(m-1) mod mod
+    h = 1
+    for _ in range(m - 1):
+        h = (h * base) % mod
     
-    # Calculate hash of pattern and first window of text
+    # Calculate initial hashes
     hashPattern = 0
     hashString = 0
     for i in range(m):
@@ -84,60 +91,81 @@ def rabinKarp(string, pattern):
         hashString = (hashString * base + ord(string[i])) % mod
     
     idx = []
+    comparisons = 0
     
-    # Slide the pattern over text
     for i in range(n - m + 1):
-        # Check hash values match, then verify (avoid hash collisions)
+        comparisons += 1
         if hashPattern == hashString:
-            # Check characters one by one to avoid false positives
-            if string[i:i+m] == pattern:
+            # Verify match - count each character comparison
+            for k in range(m):
+                
+                if string[i + k] != pattern[k]:
+                    break
+            else:
                 idx.append(i)
         
-        # Calculate hash for next window
+        # Rolling hash for next window
         if i < n - m:
-            hashString = (base * (hashString - ord(string[i]) * h) + ord(string[i + m])) % mod
-            if hashString < 0:
-                hashString += mod
+            hashString = (hashString - ord(string[i]) * h) % mod
+            hashString = (hashString * base + ord(string[i + m])) % mod
+            hashString = (hashString + mod) % mod
     
-    return idx
+    return idx, comparisons
+
 
 def prefix(p):
-    """Compute prefix function for KMP algorithm"""
+    """Compute prefix function for KMP algorithm
+    Returns: (prefix_array, comparison_count)"""
     m = len(p)
     Pi = [0] * m
     k = 0
+    comparisons = 0
+    
     for q in range(1, m):
         while k > 0 and p[k] != p[q]:
+            comparisons += 1  # Count the failed comparison
             k = Pi[k - 1]
+        
+        comparisons += 1  # Count the comparison p[k] == p[q]
         if p[k] == p[q]:
             k += 1
+        
         Pi[q] = k
-    return Pi
+    
+    return Pi, comparisons
+
 
 def kmp_matcher(S, P):
-    """KMP string matching algorithm"""
+    """KMP string matching algorithm
+    Returns: (matches, comparison_count)"""
     n = len(S)
     m = len(P)
-    if m == 0:
-        return []
-    if m > n:
-        return []
+    if m == 0 or m > n:
+        return [], 0
     
-    Pi = prefix(P)
+    Pi, prefix_comparisons = prefix(P)
     q = 0
     matches = []
+    comparisons = prefix_comparisons
+    
     S = S.lower()
     P = P.lower()
     
     for i in range(n):
         while q > 0 and P[q] != S[i]:
+            comparisons += 1  # Count the failed comparison
             q = Pi[q - 1]
+        
+        comparisons += 1  # Count the comparison P[q] == S[i]
         if P[q] == S[i]:
             q += 1
+        
         if q == m:
             matches.append(i - m + 1)
-            q = Pi[q - 1]  # Continue searching for next match
-    return matches
+            q = Pi[q - 1]
+    
+    return matches, comparisons
+
 
 def build_dataset(folder_path, output_file='dataset.pkl'):
     """

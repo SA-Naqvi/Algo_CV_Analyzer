@@ -73,12 +73,40 @@ function ResultCard({ result, rank, compact = false, keywords = '' }) {
                 {keyword}
               </span>
             ))}
-            {result.total_keywords && result.total_keywords > result.matched_keywords.length && (
-              <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
-                +{result.total_keywords - result.matched_keywords.length} more
-              </span>
-            )}
           </div>
+        </div>
+      )}
+
+      {/* Missing Keywords */}
+      {result.missing_keywords && result.missing_keywords.length > 0 && (
+        <div className="mb-4">
+          <p className="text-sm font-semibold text-gray-700 mb-2">Missing Keywords:</p>
+          <div className="flex flex-wrap gap-2">
+            {result.missing_keywords.map((keyword, idx) => (
+              <span
+                key={idx}
+                className="px-3 py-1 bg-red-50 text-red-700 rounded-full text-xs font-semibold border border-red-100"
+              >
+                {keyword}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* File Size & Comparisons */}
+      {(result.size_category || result.comparisons) && (
+        <div className="mb-4 flex gap-4 text-xs text-gray-600">
+          {result.size_category && (
+            <span className="px-2 py-1 bg-gray-100 rounded">
+              Size: <span className="font-semibold">{result.size_category}</span>
+            </span>
+          )}
+          {result.comparisons && (
+            <span className="px-2 py-1 bg-gray-100 rounded">
+              Comparisons: <span className="font-semibold">{result.comparisons.toLocaleString()}</span>
+            </span>
+          )}
         </div>
       )}
 
