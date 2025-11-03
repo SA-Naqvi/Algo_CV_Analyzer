@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/Algo_CV_Analyzer/static/css/main.994ad141.css",
+    "main.js": "/Algo_CV_Analyzer/static/js/main.f17988b5.js",
+    "index.html": "/Algo_CV_Analyzer/index.html",
+    "main.994ad141.css.map": "/Algo_CV_Analyzer/static/css/main.994ad141.css.map",
+    "main.f17988b5.js.map": "/Algo_CV_Analyzer/static/js/main.f17988b5.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.994ad141.css",
+    "static/js/main.f17988b5.js"
+  ]
+}
