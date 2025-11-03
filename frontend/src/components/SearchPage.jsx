@@ -15,8 +15,8 @@ function SearchPage() {
 
   // Fetch job descriptions on mount
   useEffect(() => {
-    //fetch('https://cv-backend-04vy.onrender.com/job_descriptions')
-    fetch('http://localhost:5000/job_descriptions')
+    fetch('https://cv-backend-04vy.onrender.com/job_descriptions')
+    //fetch('http://localhost:5000/job_descriptions')
       .then(res => res.json())
       .then(data => {
         setJobDescriptions(data.job_descriptions || {});
