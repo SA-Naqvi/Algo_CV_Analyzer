@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/Algo_CV_Analyzer/static/css/main.994ad141.css",
-    "main.js": "/Algo_CV_Analyzer/static/js/main.f17988b5.js",
+    "main.js": "/Algo_CV_Analyzer/static/js/main.4caf9f2e.js",
     "index.html": "/Algo_CV_Analyzer/index.html",
     "main.994ad141.css.map": "/Algo_CV_Analyzer/static/css/main.994ad141.css.map",
-    "main.f17988b5.js.map": "/Algo_CV_Analyzer/static/js/main.f17988b5.js.map"
+    "main.4caf9f2e.js.map": "/Algo_CV_Analyzer/static/js/main.4caf9f2e.js.map"
   },
   "entrypoints": [
     "static/css/main.994ad141.css",
-    "static/js/main.f17988b5.js"
+    "static/js/main.4caf9f2e.js"
   ]
 }
